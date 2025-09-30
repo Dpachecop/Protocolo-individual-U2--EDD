@@ -14,8 +14,12 @@ public class Producto implements Comparable<Producto> {
         this.nombre = nombre;
         this.stockActual = stockInicial;
         this.historialMovimientos = new ArrayList<>();
-        registrarMovimiento("Creación de producto con stock inicial", stockInicial);
+        // Solo registrar movimiento si es una creación real
+        if (stockInicial > 0){
+           registrarMovimiento("Creación de producto con stock inicial", stockInicial);
+        }
     }
+
 
     // Gestiona los métodos del stock del producto
     public void registrarEntrada(int cantidad) {

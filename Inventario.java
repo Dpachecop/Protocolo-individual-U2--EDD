@@ -12,27 +12,33 @@ public class Inventario {
         this.productos = new ArrayList<>();
     }
 
-    // --- MÉTODOS DE GESTIÓN DE PRODUCTOS ---
+    // --- MÉTODOS DE GESTIÓN DE PRODUCTOS (MODIFICADO) ---
     public void agregarProducto(Producto producto) {
-        if (buscarProductoLineal(producto.getNombre()).isEmpty()) {
+        // Usamos la búsqueda binaria para verificar si el producto ya existe.
+        if (buscarProducto(producto.getNombre()).isEmpty()) {
             this.productos.add(producto);
+            // Mantenemos la lista ordenada por nombre para la búsqueda binaria.
+            Collections.sort(this.productos);
             System.out.println("Producto '" + producto.getNombre() + "' agregado al inventario.");
         } else {
             System.out.println("Error: El producto '" + producto.getNombre() + "' ya existe.");
         }
     }
 
-    // --- MÉTODOS DE BÚSQUEDA ---
+    // --- MÉTODOS DE BÚSQUEDA Y MANIPULACIÓN CON STREAMS (MODIFICADO) ---
 
-    // 1. Búsqueda Lineal (Manual)
-    public Optional<Producto> buscarProductoLineal(String nombre) {
-        for (Producto p : this.productos) {
-            if (p.getNombre().equalsIgnoreCase(nombre)) {
-                return Optional.of(p);
-            }
+    // 1. Búsqueda con Búsqueda Binaria (Sustituye a la búsqueda lineal con Stream)
+    public Optional<Producto> buscarProducto(String nombre) {
+        // Creamos un producto temporal solo con el nombre para usar en la búsqueda.
+        int index = Collections.binarySearch(productos, new Producto(nombre, 0));
+
+        if (index < 0) {
+            return Optional.empty(); // No se encontró el producto.
+        } else {
+            return Optional.of(productos.get(index));
         }
-        return Optional.empty();
     }
+
 
     // --- MÉTODOS DE ORDENAMIENTO ---
 
@@ -61,7 +67,7 @@ public class Inventario {
 
     // --- MÉTODOS PARA REGISTRAR MOVIMIENTOS ---
     public void registrarEntrada(String nombreProducto, int cantidad) {
-        Optional<Producto> productoOpt = buscarProductoLineal(nombreProducto);
+        Optional<Producto> productoOpt = buscarProducto(nombreProducto);
         if (productoOpt.isPresent()) {
             productoOpt.get().registrarEntrada(cantidad);
             System.out.println("Entrada registrada para '" + nombreProducto + "'.");
@@ -71,7 +77,7 @@ public class Inventario {
     }
 
     public void registrarSalida(String nombreProducto, int cantidad) {
-        Optional<Producto> productoOpt = buscarProductoLineal(nombreProducto);
+        Optional<Producto> productoOpt = buscarProducto(nombreProducto);
         if (productoOpt.isPresent()) {
             if (!productoOpt.get().registrarSalida(cantidad)) {
                 System.out.println("Error: Stock insuficiente para '" + nombreProducto + "'.");
